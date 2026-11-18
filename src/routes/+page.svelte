@@ -4,20 +4,18 @@
 	import PixelEdge from '$lib/PixelEdge.svelte';
 	import PixelIcon from '$lib/PixelIcon.svelte';
 	import PixelWordmark from '$lib/PixelWordmark.svelte';
-	import { dict, logos, students } from '$lib/i18n.js';
+	import { dict, students, sources } from '$lib/i18n.js';
 
 	/** @type {HTMLElement | undefined} */
 	let anchor = $state();
 	/** @type {HTMLElement | undefined} */
 	let shake = $state();
 	let sent = $state(false);
-	let term = $state(60);
 	/** @type {'de' | 'en'} */
 	let lang = $state('de');
 	const t = $derived(dict[lang]);
 
-	const amount = 18400;
-	const fee = $derived(term === 30 ? 0 : term === 60 ? 0.019 : 0.034);
+	const amount = 12400;
 	const fmt = (/** @type {number} */ n) =>
 		n.toLocaleString(t.locale, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
 
@@ -46,8 +44,9 @@
 	<a href="#top" class="logo" aria-label="LUM"><PixelWordmark color="#3b4ae0" shadow="#c9d4ff" height="0.9em" /></a>
 	<div class="links">
 		<a href="#product">{t.nav.product}</a>
+		<a href="#market">{t.nav.market}</a>
 		<a href="#how">{t.nav.how}</a>
-		<a href="#why">{t.nav.why}</a>
+		<a href="#model">{t.nav.model}</a>
 		<div class="lang" role="group" aria-label="Language">
 			<button class:active={lang === 'de'} aria-pressed={lang === 'de'} onclick={() => (lang = 'de')}>DE</button>
 			<button class:active={lang === 'en'} aria-pressed={lang === 'en'} onclick={() => (lang = 'en')}>EN</button>
@@ -76,21 +75,11 @@
 
 <section class="blue" id="product">
 	<div class="wrap">
-		<p class="trusted">{t.trusted}</p>
-		<ul class="logos">
-			{#each logos as l}<li>{l}</li>{/each}
-		</ul>
-
 		<div class="product">
 			<div class="product-copy">
 				<p class="kicker kicker-light">{t.productKicker}</p>
 				<h2>{t.productH2a} <span class="strike">{t.productStrike}</span> {t.productH2b}</h2>
 				<p>{t.productText}</p>
-				<div class="terms" role="radiogroup" aria-label={t.termLabel}>
-					{#each [30, 60, 90] as d}
-						<button role="radio" aria-checked={term === d} class:active={term === d} onclick={() => (term = d)}>{d} {t.days}</button>
-					{/each}
-				</div>
 			</div>
 
 			<div class="mock">
@@ -115,11 +104,11 @@
 					<p class="co-label">{t.invoice}</p>
 					<p class="co-amount">{fmt(amount)}</p>
 					<div class="co-rows">
-						<div><span>{t.supplierPaid}</span><strong>{t.today}</strong></div>
-						<div><span>{t.youPay}</span><strong>{t.inDays(term)}</strong></div>
-						<div><span>{t.flatFee}</span><strong>{fee === 0 ? t.free : fmt(amount * fee)}</strong></div>
+						<div><span>{t.supplierRow}</span><strong>{t.supplierVal}</strong></div>
+						<div><span>{t.clientRow}</span><strong>{t.clientVal}</strong></div>
+						<div><span>{t.interestRow}</span><strong>0%</strong></div>
 					</div>
-					<div class="co-bar"><span style="width:{(term / 90) * 100}%"></span></div>
+					<div class="co-bar"><span style="width:66%"></span></div>
 					<button class="co-btn" type="button">{t.confirm}</button>
 				</div>
 			</div>
@@ -136,19 +125,42 @@
 			<div class="stats">
 				{#each t.stats as s}
 					<div class="stat">
+						<p class="stat-v" class:stat-word={!s.unit}>{s.value}<span>{s.unit}</span></p>
+						<p class="stat-l">{s.label}</p>
+					</div>
+				{/each}
+			</div>
+			<div class="trap">
+				<h3>{t.trapH}</h3>
+				<p>{t.trapText}</p>
+			</div>
+		</div>
+	</section>
+
+	<section class="section soft" id="market">
+		<div class="wrap">
+			<p class="kicker">{t.marketKicker}</p>
+			<h2 class="h-wide">{t.marketH2}</h2>
+			<div class="stats">
+				{#each t.market as s}
+					<div class="stat">
 						<p class="stat-v">{s.value}<span>{s.unit}</span></p>
 						<p class="stat-l">{s.label}</p>
 					</div>
 				{/each}
 			</div>
+			<p class="note">{t.marketNote}</p>
+			<ul class="sources">
+				{#each sources as s}<li><a href={s.url} target="_blank" rel="noopener">{s.label}</a></li>{/each}
+			</ul>
 		</div>
 	</section>
 
-	<section class="section soft" id="how">
+	<section class="section" id="how">
 		<div class="wrap">
 			<p class="kicker">{t.howKicker}</p>
 			<h2 class="h-wide">{t.howH2}</h2>
-			<ol class="steps">
+			<ol class="steps steps-4">
 				{#each t.steps as s, i}
 					<li class="card">
 						<div class="step-top">
@@ -163,31 +175,105 @@
 		</div>
 	</section>
 
-	<section class="section" id="why">
+	<section class="section soft">
 		<div class="wrap">
-			<p class="kicker">{t.whyKicker}</p>
-			<h2 class="h-wide">{t.whyH2}</h2>
-			<div class="features">
-				{#each t.features as f}
-					<article class="feature">
-						<PixelIcon name={f.icon} size={24} color="#3b4ae0" />
-						<h3>{f.title}</h3>
-						<p>{f.text}</p>
+			<p class="kicker">{t.funcKicker}</p>
+			<h2 class="h-wide">{t.funcH2}</h2>
+			<div class="steps">
+				{#each t.func as col}
+					<article class="card">
+						<h3 class="col-h">{col.title}</h3>
+						<ul class="list">{#each col.items as it}<li>{it}</li>{/each}</ul>
 					</article>
 				{/each}
 			</div>
 		</div>
 	</section>
 
-	<section class="section quote-sec">
+	<section class="section">
 		<div class="wrap">
-			<figure class="quote">
-				<blockquote>{t.quote}</blockquote>
-				<figcaption>
-					<span class="avatar" aria-hidden="true">KM</span>
-					<span><strong>{t.quoteName}</strong><br />{t.quoteRole}</span>
-				</figcaption>
-			</figure>
+			<p class="kicker">{t.diffKicker}</p>
+			<h2 class="h-wide">{t.diffH2}</h2>
+			<div class="diff">
+				<article class="card">
+					<h3 class="col-h">{t.diffThem}</h3>
+					<ul class="list">{#each t.diffThemItems as it}<li>{it}</li>{/each}</ul>
+				</article>
+				<article class="card card-blue">
+					<h3 class="col-h">{t.diffUs}</h3>
+					<ul class="list">{#each t.diffUsItems as it}<li>{@html it}</li>{/each}</ul>
+				</article>
+			</div>
+		</div>
+	</section>
+
+	<section class="section soft">
+		<div class="wrap">
+			<p class="kicker">{t.scoreKicker}</p>
+			<h2 class="h-wide">{t.scoreH2}</h2>
+			<ol class="steps">
+				{#each t.score as s, i}
+					<li class="card">
+						<span class="step-n step-n-blue">0{i + 1}</span>
+						<h3>{s.title}</h3>
+						<p>{s.text}</p>
+					</li>
+				{/each}
+			</ol>
+			<div class="limits">
+				<div>
+					<h3>{t.limitH}</h3>
+					<p>{t.limitText}</p>
+				</div>
+				<figure class="bars">
+					{#each t.limitBars as b, i}
+						<div class="bar-col"><span class="bar" class:first={i === 0} style="height:{35 + i * 20}%"></span><small>{b}</small></div>
+					{/each}
+					<figcaption>{t.limitNote}</figcaption>
+				</figure>
+			</div>
+		</div>
+	</section>
+
+	<section class="section" id="model">
+		<div class="wrap">
+			<p class="kicker">{t.modelKicker}</p>
+			<h2 class="h-wide">{t.modelH2}</h2>
+			<div class="table card">
+				{#each t.model as m}
+					<div class="trow"><strong>{m.name}</strong><span>{m.who}</span><em>{m.what}</em></div>
+				{/each}
+			</div>
+			<div class="seed"><span>€325k</span><p>{t.seed}</p></div>
+		</div>
+	</section>
+
+	<section class="section soft">
+		<div class="wrap">
+			<p class="kicker">{t.riskKicker}</p>
+			<h2 class="h-wide">{t.riskH2}</h2>
+			<ol class="risks">
+				{#each t.risks as r, i}<li><span>0{i + 1}</span>{r}</li>{/each}
+			</ol>
+			<p class="goal">{t.riskGoal}</p>
+			<div class="diff">
+				<article class="card"><h3 class="col-h">{t.feasH}</h3><p>{t.feas}</p></article>
+				<article class="card"><h3 class="col-h">{t.keyRisksH}</h3><p>{t.keyRisks}</p></article>
+			</div>
+		</div>
+	</section>
+
+	<section class="section blue-sec">
+		<div class="wrap">
+			<p class="kicker kicker-light">{t.visionKicker}</p>
+			<h2 class="vision">{t.vision}</h2>
+			<p>{t.visionText}</p>
+			<h3>{t.missionH}</h3>
+			<p>{t.mission}</p>
+			<h3>{t.valuesH}</h3>
+			<ul class="values">{#each t.values as v}<li>{v}</li>{/each}</ul>
+			<h3>{t.nameH}</h3>
+			<p>{t.nameText}</p>
 		</div>
 	</section>
 </main>
@@ -200,9 +286,9 @@
 			<h2>{t.contactH2}</h2>
 			<p class="muted-light">{t.contactText}</p>
 			<ul class="contact-list">
-				<li><span>{t.email}</span><a href="mailto:hallo@lum.example">hallo@lum.example</a></li>
-				<li><span>{t.phone}</span><a href="tel:+493012345678">+49 30 1234 5678</a></li>
-				<li><span>{t.office}</span>Torstraße 120, 10119 Berlin</li>
+				{#each students as s}
+					<li><span>{s.name}</span><a href="mailto:{s.email}">{s.email}</a></li>
+				{/each}
 			</ul>
 		</div>
 		<form class="form" onsubmit={submit}>
@@ -215,7 +301,7 @@
 			{:else}
 				<div class="row2">
 					<label>{t.fName} <input required name="name" autocomplete="name" placeholder={t.phName} /></label>
-					<label>{t.fCompany} <input required name="company" autocomplete="organization" placeholder={t.phCompany} /></label>
+					<label>{t.fCompany} <input name="company" autocomplete="organization" placeholder={t.phCompany} /></label>
 				</div>
 				<label>{t.fEmail} <input required type="email" name="email" autocomplete="email" placeholder={t.phEmail} /></label>
 				<label>
@@ -236,20 +322,6 @@
 				<a href="#top" class="logo logo-light"><PixelWordmark color="#6d7bff" shadow="#2834b8" height="0.9em" /></a>
 				<p>{@html t.footerNote}</p>
 			</div>
-			<h4>{t.team}</h4>
-			<ul class="students">
-				{#each students as s}
-					<li>
-						<span class="avatar" aria-hidden="true">{s.name.split(' ').map((p) => p[0]).join('')}</span>
-						<div>
-							<strong>{s.name}</strong>
-							<span>{s.role[lang]}</span>
-							<span class="sid">{t.studentId} {s.id}</span>
-							<a href="mailto:{s.email}">{s.email}</a>
-						</div>
-					</li>
-				{/each}
-			</ul>
 			<p class="copy">{t.copy}</p>
 		</div>
 	</footer>
@@ -388,20 +460,11 @@
 
 	/* blue product band */
 	.blue { background: var(--blue); color: #e3e8ff; padding: 2rem 0 5rem; }
-	.trusted { text-align: center; font-size: 0.85rem; color: #c3cbff; }
-	.logos { list-style: none; padding: 0; margin: 1.25rem 0 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem 2.5rem; }
-	.logos li { font-family: var(--pixel); color: #fff; opacity: 0.85; font-size: 1rem; }
 	.product { display: grid; grid-template-columns: 1fr 1.05fr; gap: 3rem; align-items: center; margin-top: 5rem; }
 	@media (max-width: 880px) { .product { grid-template-columns: 1fr; margin-top: 3.5rem; } }
 	.product h2 { color: #fff; }
 	.product-copy p { color: #d4daff; font-size: 1.05rem; }
 	.strike { text-decoration: line-through; text-decoration-color: #ff6b81; text-decoration-thickness: 0.12em; opacity: 0.75; }
-	.terms { display: inline-flex; gap: 4px; margin-top: 2rem; padding: 4px; background: rgba(10, 16, 51, 0.25); border-radius: 12px; }
-	.terms button {
-		font: 600 0.9rem 'Inter', sans-serif; color: #dfe4ff; background: transparent;
-		border: 0; padding: 0.55rem 1rem; border-radius: 9px; cursor: pointer;
-	}
-	.terms button.active { background: #fff; color: var(--blue); box-shadow: 0 2px 6px rgba(10, 16, 51, 0.25); }
 
 	.mock { position: relative; min-height: 400px; }
 	.terminal {
@@ -465,10 +528,10 @@
 	.soft { background: var(--soft); border-block: 1px solid var(--line); }
 
 	.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; border-top: 1px solid var(--line); padding-top: 2rem; }
-	@media (max-width: 760px) { .stats { grid-template-columns: 1fr; gap: 1.5rem; } }
+	@media (max-width: 960px) { .stats { grid-template-columns: 1fr; gap: 1.5rem; } }
 	.stat { padding-left: 1rem; border-left: var(--px) solid var(--blue); }
-	.stat-v { font-weight: 700; font-size: clamp(2.4rem, 5vw, 3.4rem); line-height: 1; letter-spacing: -0.04em; color: var(--ink); }
-	.stat-v span { letter-spacing: 0; font-size: 1rem; color: var(--muted); margin-left: 0.4rem; font-weight: 500; }
+	.stat-v { font-weight: 700; font-size: clamp(2.2rem, 4vw, 3rem); line-height: 1; letter-spacing: -0.04em; color: var(--ink); }
+	.stat-v span { display: inline-block; letter-spacing: 0; font-size: 1rem; color: var(--muted); margin-left: 0.4rem; font-weight: 500; }
 	.stat-l { margin-top: 0.6rem; max-width: 24ch; }
 
 	.card { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 1.6rem; box-shadow: 0 1px 2px rgba(10, 16, 51, 0.04), 0 12px 32px -16px rgba(10, 16, 51, 0.15); transition: transform 0.2s, box-shadow 0.2s; }
@@ -479,17 +542,7 @@
 	.step-icon { display: grid; place-items: center; width: 52px; height: 52px; background: #eef0ff; border-radius: 12px; }
 	.step-n { font-family: var(--pixel); color: #c9d0f5; font-size: 1.6rem; }
 
-	.features { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
-	@media (max-width: 900px) { .features { grid-template-columns: repeat(2, 1fr); } }
-	@media (max-width: 560px) { .features { grid-template-columns: 1fr; } }
-	.feature { padding: 2rem 1.75rem; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); transition: background 0.2s; }
-	.feature:hover { background: var(--soft); }
 
-	.quote-sec { padding-top: 0; }
-	.quote { margin: 0 auto; max-width: 52rem; text-align: center; }
-	.quote blockquote { margin: 0; font-size: clamp(1.4rem, 3.4vw, 2.2rem); line-height: 1.3; color: var(--ink); font-weight: 600; letter-spacing: -0.025em; }
-	.quote figcaption { display: inline-flex; gap: 0.8rem; align-items: center; margin-top: 1.75rem; text-align: left; font-size: 0.9rem; }
-	.quote strong { color: var(--ink); }
 
 	.avatar { flex-shrink: 0; width: 42px; height: 42px; display: grid; place-items: center; background: var(--blue); color: #fff; font-family: var(--pixel); font-size: 0.85rem; box-shadow: 4px 4px 0 #c9d4ff; }
 
@@ -521,17 +574,52 @@
 	.logo-light { color: #fff; }
 	.footer-top { display: flex; gap: 2rem; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-bottom: 2.5rem; }
 	.footer-top p { max-width: 520px; color: #8d96c0; }
-	.footer h4 { font-family: var(--mono); font-weight: 500; color: #7f8cff; margin: 0 0 1rem; font-size: 0.85rem; }
-	.students { list-style: none; padding: 0; margin: 0; display: grid; gap: 1rem; grid-template-columns: repeat(5, 1fr); }
-	@media (max-width: 1000px) { .students { grid-template-columns: repeat(3, 1fr); } }
-	@media (max-width: 640px) { .students { grid-template-columns: 1fr; } }
-	.students li { display: flex; gap: 0.8rem; align-items: flex-start; background: #111a45; border: 1px solid #1f2752; border-radius: 12px; padding: 1rem; min-width: 0; }
-	.students .avatar { box-shadow: 3px 3px 0 #2834b8; width: 38px; height: 38px; }
-	.students div { display: flex; flex-direction: column; min-width: 0; }
-	.students strong { color: #fff; }
-	.students .sid { font-family: var(--mono); font-size: 0.75rem; color: #6f79a8; }
-	.students a { color: #9aa6ff; font-size: 0.75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 	.copy { color: #5d6796; margin-top: 2.5rem; text-align: center; }
+
+	.stat-word { font-size: clamp(1.8rem, 4vw, 2.4rem); }
+	.trap { margin-top: 3rem; padding: 2rem; background: var(--blue); color: #e3e8ff; border-radius: 14px; }
+	.trap h3 { color: #ffd23f; font-family: var(--pixel); margin-top: 0; font-size: 1.4rem; }
+	.note { margin-top: 2.5rem; font-size: 0.9rem; }
+	.sources { margin: 0.5rem 0 0; padding-left: 1.2rem; font-size: 0.85rem; }
+	.steps-4 { grid-template-columns: repeat(4, 1fr); }
+	@media (max-width: 1000px) { .steps-4 { grid-template-columns: repeat(2, 1fr); } }
+	@media (max-width: 600px) { .steps-4 { grid-template-columns: 1fr; } }
+	.col-h { font-family: var(--pixel); color: var(--blue); margin-top: 0; }
+	.list { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.6rem; }
+	.diff { display: grid; grid-template-columns: 1fr 1.6fr; gap: 1.5rem; margin-top: 1.5rem; }
+	@media (max-width: 800px) { .diff { grid-template-columns: 1fr; } }
+	.card-blue { background: var(--blue); color: #e3e8ff; border-color: var(--blue); }
+	.card-blue .col-h { color: #ffd23f; }
+	.card-blue :global(strong) { color: #fff; }
+	.step-n-blue { color: var(--blue); }
+	.limits { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 3rem; align-items: center; }
+	@media (max-width: 800px) { .limits { grid-template-columns: 1fr; } }
+	.bars { margin: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; align-items: end; height: 260px; background: var(--blue); border-radius: 14px; padding: 2.5rem 1.5rem 0.75rem; position: relative; }
+	.bar-col { display: flex; flex-direction: column; justify-content: flex-end; height: 100%; text-align: center; gap: 0.4rem; }
+	.bar { display: block; background: #eef0ff; border-radius: 6px 6px 0 0; }
+	.bar.first { background: #ffd23f; }
+	.bar-col small { color: #d4daff; font-size: 0.7rem; line-height: 1.2; min-height: 2.4em; }
+	.bars figcaption { position: absolute; top: 0.8rem; left: 1.5rem; color: #c3cbff; font-size: 0.75rem; }
+	.table { padding: 0.5rem 1.6rem; }
+	.table:hover { transform: none; }
+	.trow { display: grid; grid-template-columns: 1fr 1.3fr 1.3fr; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--line); }
+	.trow:last-child { border-bottom: 0; }
+	.trow strong { color: var(--ink); }
+	.trow em { font-style: normal; font-weight: 600; color: var(--blue); text-align: right; }
+	@media (max-width: 640px) { .trow { grid-template-columns: 1fr; gap: 0.2rem; } .trow em { text-align: left; } }
+	.seed { display: flex; gap: 2rem; align-items: center; margin-top: 1.5rem; background: var(--blue); color: #e3e8ff; border-radius: 14px; padding: 1.5rem 2rem; }
+	.seed span { font-size: clamp(2.2rem, 5vw, 3rem); font-weight: 800; color: #fff; letter-spacing: -0.03em; }
+	@media (max-width: 560px) { .seed { flex-direction: column; align-items: flex-start; gap: 0.5rem; } }
+	.risks { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.6rem; }
+	.risks li { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 0.8rem 1.2rem; color: var(--ink); }
+	.risks span { font-weight: 700; color: var(--blue); margin-right: 1.2rem; }
+	.goal { margin-top: 1.2rem; background: var(--blue); color: #fff; border-radius: 12px; padding: 1.2rem 1.5rem; }
+	.blue-sec { background: var(--blue); color: #e3e8ff; }
+	.blue-sec h3 { color: #ffd23f; margin-top: 2.5rem; }
+	.vision { color: #fff; font-family: var(--pixel); font-size: clamp(1.6rem, 4vw, 2.6rem); line-height: 1.25; max-width: 28ch; }
+	.values { list-style: none; padding: 0; margin: 0.5rem 0 0; display: flex; flex-wrap: wrap; gap: 0.6rem; }
+	.values li { font-family: var(--pixel); background: #fff; color: var(--blue); padding: 0.4rem 0.9rem; border-radius: 8px; }
+	.contact-list span { width: 6rem; }
 
 	@media (prefers-reduced-motion: reduce) {
 		:global(html) { scroll-behavior: auto; }
