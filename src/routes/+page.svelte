@@ -4,6 +4,7 @@
 	import PixelEdge from '$lib/PixelEdge.svelte';
 	import PixelIcon from '$lib/PixelIcon.svelte';
 	import PixelWordmark from '$lib/PixelWordmark.svelte';
+	import PitchDeck from '$lib/PitchDeck.svelte';
 	import { dict, students, sources } from '$lib/i18n.js';
 
 	/** @type {HTMLElement | undefined} */
@@ -47,6 +48,7 @@
 		<a href="#market">{t.nav.market}</a>
 		<a href="#how">{t.nav.how}</a>
 		<a href="#model">{t.nav.model}</a>
+		<a href="#deck">Deck</a>
 		<div class="lang" role="group" aria-label="Language">
 			<button class:active={lang === 'de'} aria-pressed={lang === 'de'} onclick={() => (lang = 'de')}>DE</button>
 			<button class:active={lang === 'en'} aria-pressed={lang === 'en'} onclick={() => (lang = 'en')}>EN</button>
@@ -276,6 +278,8 @@
 			<p>{t.nameText}</p>
 		</div>
 	</section>
+
+	<PitchDeck {t} />
 </main>
 
 <PixelEdge color="#0a1033" flip rows={5} seed={7} />
